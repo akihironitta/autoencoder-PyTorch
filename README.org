@@ -1,1 +1,5 @@
 * autoencoder-PyTorch
+  
+* References
+  - http://aidiary.hatenablog.com/entry/20180225/1519520981
+  - http://dl-kento.hatenablog.com/entry/2018/02/22/200811
