@@ -41,7 +41,7 @@ LEARNING_RATE = 1e-3
 DATASET = "mnist"
 ACTIVATION = torch.nn.ReLU()
 H = 400
-M = 20
+M = 2
 
 # prep dataset
 DATASET = DATASET.lower()
@@ -123,6 +123,11 @@ for epoch in range(N_EPOCHS):
 
 # save the model
 print("===== Saving the model =====")
-filename = "ae-"+DATASET+"-"+str(N_EPOCHS)+".prm"
+filename = "ae"\
+           + "-" + DATASET\
+           + "-M" + str(M)\
+           + "-E" + str(N_EPOCHS)\
+           + ".prm"
+           
 parameters = model.state_dict()
 torch.save(parameters, PARAMETER_DIR+filename, pickle_protocol=4)
