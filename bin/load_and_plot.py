@@ -3,18 +3,44 @@ import torchvision
 from torchvision import transforms
 from modules.Autoencoder import AE
 import matplotlib.pyplot as plt
+import argparse
+
+# Parse arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-m",
+                    action="store",
+                    nargs="?",
+                    default=2,
+                    type=int)
+parser.add_argument("--batch-size",
+                    action="store",
+                    nargs="?",
+                    default=1000,
+                    type=int)
+parser.add_argument("--dataset",
+                    action="store",
+                    nargs="?",
+                    default="mnist",
+                    type=str)
+parser.add_argument("--n-epochs",
+                    action="store",
+                    nargs="?",
+                    default=100,
+                    type=int)
+args = parser.parse_args()
+
+# Configuration using argparse
+DATASET = args.dataset
+N_EPOCHS = args.n_epochs
+BATCH_SIZE = args.batch_size
+M = args.m
 
 # Configuration
 DATA_DIR = "/tmp/data/"
 PARAMETER_DIR = "../parameters/"
-DATASET = "mnist"
-N_EPOCHS = 200
-filename = "ae-"+DATASET+"-"+str(N_EPOCHS)+".prm"
-BATCH_SIZE = 1000
 ACTIVATION = torch.nn.ReLU()
 D = 784
 H = 400
-M = 20
 
 # prep data
 DATASET = DATASET.lower()

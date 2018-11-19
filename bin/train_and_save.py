@@ -20,6 +20,31 @@ print("===== MODULES =====")
 print("torch:", torch.__version__)
 print("torchvision", torchvision.__version__)
 
+import argparse
+# Parse arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-m",
+                    action="store",
+                    nargs="?",
+                    default=2,
+                    type=int)
+parser.add_argument("--batch-size",
+                    action="store",
+                    nargs="?",
+                    default=128,
+                    type=int)
+parser.add_argument("--dataset",
+                    action="store",
+                    nargs="?",
+                    default="mnist",
+                    type=str)
+parser.add_argument("--n-epochs",
+                    action="store",
+                    nargs="?",
+                    default=100,
+                    type=int)
+args = parser.parse_args()
+
 # Device configuration
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -35,13 +60,14 @@ if not os.path.exists(PARAMETER_DIR):
     os.makedirs(PARAMETER_DIR)
 
 # Hyper-parameters
-N_EPOCHS = 1
-BATCH_SIZE = 128
-LEARNING_RATE = 1e-3
-DATASET = "mnist"
-ACTIVATION = torch.nn.ReLU()
+# Configuration using argparse
+DATASET = args.dataset
+N_EPOCHS = args.n_epochs
+BATCH_SIZE = args.batch_size
+M = args.m
 H = 400
-M = 2
+LEARNING_RATE = 1e-3
+ACTIVATION = torch.nn.ReLU()
 
 # prep dataset
 DATASET = DATASET.lower()
@@ -65,6 +91,12 @@ elif DATASET == "fmnist":
                                            train=True,
                                            transform=transforms.ToTensor(),
                                            download=True)
+elif DATASET == "cifar10":
+    D = 32*32*3
+    ds = torchvision.datasets.CIFAR10(root=DATA_DIR,
+                                      train=True,
+                                      transform=transforms.ToTensor(),
+                                      download=True)
 elif DATASET == "cifar100":
     D = 32*32*3
     ds = torchvision.datasets.CIFAR100(root=DATA_DIR,
@@ -73,10 +105,10 @@ elif DATASET == "cifar100":
                                        download=True)
 elif DATASET == "svhn":
     D = 32*32*3
-    ds = torchvision.datasets.CIFAR100(root=DATA_DIR,
-                                       train=True,
-                                       transform=transforms.ToTensor(),
-                                       download=True)
+    ds = torchvision.datasets.SVHN(root=DATA_DIR,
+                                   train=True,
+                                   transform=transforms.ToTensor(),
+                                   download=True)
 else:
     assert False, "Unsupported dataset."
 
@@ -85,11 +117,11 @@ data_loader = torch.utils.data.DataLoader(dataset=ds,
                                           batch_size=BATCH_SIZE, 
                                           shuffle=True)
 
-
 print("===== CONFIG =====")
 print("dataset:", DATASET)
 print("batch size:", BATCH_SIZE)
 print("# of epochs:", N_EPOCHS)
+print("dim:", D, "->", H, "->", M)
 print("device:", device)
 
 # Define model
@@ -128,6 +160,6 @@ filename = "ae"\
            + "-M" + str(M)\
            + "-E" + str(N_EPOCHS)\
            + ".prm"
-           
+
 parameters = model.state_dict()
 torch.save(parameters, PARAMETER_DIR+filename, pickle_protocol=4)
