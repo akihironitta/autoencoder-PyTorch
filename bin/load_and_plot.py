@@ -8,13 +8,13 @@ import matplotlib.pyplot as plt
 DATA_DIR = "/tmp/data/"
 PARAMETER_DIR = "../parameters/"
 DATASET = "mnist"
-N_EPOCHS = 100
+N_EPOCHS = 200
 filename = "ae-"+DATASET+"-"+str(N_EPOCHS)+".prm"
-BATCH_SIZE = 128
+BATCH_SIZE = 1000
 ACTIVATION = torch.nn.ReLU()
 D = 784
 H = 400
-M = 2
+M = 20
 
 # prep data
 DATASET = DATASET.lower()
@@ -55,25 +55,29 @@ else:
 
 # Data loader
 data_loader = torch.utils.data.DataLoader(dataset=ds,
-                                          batch_size=1000,
+                                          batch_size=BATCH_SIZE,
                                           shuffle=True)
 
 # define and restore the trained model
+print("Loading the pretrained model...")
 model = AE(D=D, H=H, M=M, activation=ACTIVATION)
-parameters = torch.load(PARAMETER_DIR+"ae-"+DATASET+"-"+str(N_EPOCHS)+".prm", map_location="cpu")
+parameters = torch.load(PARAMETER_DIR+"ae-"+DATASET+"-M"+str(M)+"-E"+str(N_EPOCHS)+".prm", map_location="cpu")
 model.load_state_dict(parameters)
-
 model.eval()
 
 for i, (X, Y) in enumerate(data_loader):
-    
-    # Forward pass
+    # encode the data
     X = X.view(-1, D)
     Y = Y.numpy()
     Z = model.encode(X)
     Z = Z.detach().numpy()
-    
-    # plot the embeddings
-    plt.scatter(Z[:, 0], Z[:, 1], c=Y, cmap="gist_rainbow", marker=".")
+    break
 
+if M > 2:
+    from sklearn.manifold import TSNE
+    print("Embedding Z into 2 dimensional space using t-SNE...")
+    Z = TSNE(n_components=2).fit_transform(X)
+
+print("Plotting...")
+plt.scatter(Z[:, 0], Z[:, 1], c=Y, cmap="gist_rainbow", marker=".")
 plt.show()
